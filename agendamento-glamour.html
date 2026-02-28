@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salão Glamour — Agendar</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(160deg,#FDF6F0,#F9E4EA);min-height:100vh;color:#2C1B1E;}
+.topo{background:linear-gradient(135deg,#8B2E42,#C8506A 60%,#D4A843);padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 20px rgba(139,46,66,0.25);}
+.tit{font-family:'Playfair Display',serif;color:#fff;font-size:1.55rem;}.tit span{font-style:italic;color:#FFE8A3;}
+.sub{color:rgba(255,255,255,0.78);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+.wrap{max-width:500px;margin:0 auto;padding:22px 14px 60px;}
+.card{background:rgba(255,255,255,0.97);border-radius:16px;padding:20px;box-shadow:0 8px 28px rgba(139,46,66,0.11);margin-bottom:14px;border:1px solid rgba(200,80,106,0.1);}
+.card h2{font-family:'Playfair Display',serif;color:#8B2E42;font-size:1.05rem;margin-bottom:14px;padding-bottom:9px;border-bottom:1px solid #F2C4CE;}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+.fg label{font-size:0.73rem;font-weight:700;color:#6B4C52;text-transform:uppercase;letter-spacing:0.8px;}
+.fg input,.fg select{padding:10px 12px;border:1.5px solid #E8C5CE;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#2C1B1E;background:#fff;outline:none;width:100%;}
+.fg input:focus,.fg select:focus{border-color:#C8506A;}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin-top:8px;}
+.slot{border-radius:9px;padding:10px 5px;text-align:center;font-weight:700;font-size:0.88rem;border:2px solid #F2C4CE;cursor:pointer;transition:all 0.18s;background:#fff;color:#8B2E42;}
+.slot:hover,.slot.sel{background:#C8506A;color:#fff;border-color:#8B2E42;transform:scale(1.05);}
+.sv-row{background:linear-gradient(135deg,#FFF8F9,#FFF0F3);border:1.5px solid #F2C4CE;border-radius:10px;padding:12px;margin-bottom:8px;position:relative;}
+.sv-row .rm{position:absolute;top:7px;right:7px;background:#ffebee;border:none;color:#e53935;border-radius:5px;padding:2px 7px;font-size:0.72rem;cursor:pointer;font-weight:700;}
+.btn-ag{width:100%;padding:14px;border:none;border-radius:11px;background:linear-gradient(135deg,#C8506A,#8B2E42);color:#fff;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(200,80,106,0.3);transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;}
+.btn-ag:disabled{opacity:0.6;cursor:not-allowed;}
+.btn-sec{width:100%;padding:12px;border:1.5px solid #F2C4CE;border-radius:11px;background:#FDF6F0;color:#C8506A;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.status-box{border-radius:16px;padding:28px 22px;text-align:center;margin-bottom:12px;}
+.s-pend{background:#FCE4EC;border:2px solid #F48FB1;}
+.s-ok{background:#E8F5E9;border:2px solid #81C784;}
+.s-canc{background:#FFEBEE;border:2px solid #EF9A9A;}
+.s-icon{font-size:2.6rem;margin-bottom:10px;}
+.s-title{font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:8px;}
+.s-msg{font-size:0.88rem;line-height:1.65;margin-bottom:14px;}
+.spinner{width:36px;height:36px;border:4px solid rgba(200,80,106,0.2);border-top-color:#C8506A;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.rodape{text-align:center;color:#ccc;font-size:0.73rem;margin-top:20px;}
+</style>
+</head>
+<body>
+<div class="topo"><span style="font-size:2.2rem;">💅</span><div><div class="tit">Salão <span>Glamour</span></div><div class="sub">Agendamento Online</div></div></div>
+<div class="wrap">
+  <div id="tela0" style="text-align:center;padding:50px 0;">
+    <div class="spinner"></div>
+    <p style="color:#C8506A;font-weight:600;">Carregando horários disponíveis...</p>
+  </div>
+  <div id="tela1" style="display:none;">
+    <div class="card"><h2>👩 Seus Dados</h2>
+      <div class="fg"><label>Seu Nome *</label><input type="text" id="pNome" placeholder="Como você se chama?"></div>
+      <div class="fg"><label>Seu WhatsApp *</label><input type="tel" id="pTel" placeholder="(00) 00000-0000" oninput="mascaraTel(this)"></div>
+    </div>
+    <div class="card"><h2>📅 Dia e Horário</h2>
+      <div class="fg"><label>Dia da semana</label>
+        <select id="pDia" onchange="carregarSlots()">
+          <option value="">-- Selecione --</option>
+
+        </select>
+      </div>
+      <div id="slotsBox"><p style="color:#bbb;font-size:0.85rem;margin-top:4px;">Selecione um dia.</p></div>
+    </div>
+    <div class="card" id="cardSv" style="display:none;"><h2>✂️ Serviços</h2>
+      <p style="font-size:0.83rem;color:#6B4C52;margin-bottom:12px;">Escolha os serviços e com quem quer ser atendida.</p>
+      <div id="svLista"></div>
+      <button class="btn-sec" onclick="addSvRow()">➕ Adicionar serviço</button>
+    </div>
+    <button class="btn-ag" id="btnAg" style="display:none;" onclick="enviar()">📅 Solicitar este Horário</button>
+  </div>
+  <div id="tela2" style="display:none;">
+    <div class="status-box s-pend" id="boxPend">
+      <div class="s-icon">⏳</div>
+      <div class="s-title" style="color:#880e4f;">Solicitação Enviada!</div>
+      <div class="s-msg" style="color:#880e4f;" id="msgPend"></div>
+      <div style="background:rgba(255,255,255,0.65);border-radius:10px;padding:12px;font-size:0.83rem;color:#6d4c41;">
+        A Paula vai confirmar em breve! ⏳<br>
+        <span style="font-size:0.78rem;color:#a0522d;">🔄 Esta página atualiza automaticamente assim que confirmar!</span>
+      </div>
+    </div>
+    <div class="status-box s-ok" id="boxOk" style="display:none;">
+      <div class="s-icon">✅</div>
+      <div class="s-title" style="color:#1b5e20;">Horário Confirmado!</div>
+      <div class="s-msg" style="color:#2e7d32;" id="msgOk"></div>
+      <div style="background:rgba(255,255,255,0.65);border-radius:10px;padding:12px;font-size:0.83rem;color:#1b5e20;">
+        💚 Seu horário está garantido! Até lá! 💕
+      </div>
+    </div>
+    <div class="status-box s-canc" id="boxCanc" style="display:none;">
+      <div class="s-icon">❌</div>
+      <div class="s-title" style="color:#c62828;">Horário Indisponível</div>
+      <div class="s-msg" style="color:#c62828;">Este horário não está mais disponível. Faça um novo agendamento.</div>
+    </div>
+    <button class="btn-sec" onclick="novoAg()">← Fazer outro agendamento</button>
+  </div>
+  <div class="rodape">Salão Glamour · Agendamento Online</div>
+</div>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+const firebaseConfig = {"apiKey":"AIzaSyA9IEFzq1TomUljOny-LJyGnBqQDuXC2Go","authDomain":"salao-glamour.firebaseapp.com","projectId":"salao-glamour","storageBucket":"salao-glamour.firebasestorage.app","messagingSenderId":"349022747255","appId":"1:349022747255:web:8a116a5ba025025577e472"};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+let D={horarios:{},manicures:[],servicos:[],agendamentos:[]};
+let slotSel=null,agSolId=null,unsubStatus=null;
+function uid(){return Date.now().toString(36)+Math.random().toString(36).substr(2,6);}
+function mascaraTel(el){let v=el.value.replace(/\D/g,'');if(v.length<=10)v=v.replace(/(\d{2})(\d{4})(\d{0,4})/,'($1) $2-$3');else v=v.replace(/(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3');el.value=v.substring(0,15);}
+window.mascaraTel=mascaraTel;
+async function carregar(){
+  try{
+    const hSnap=await getDoc(doc(db,'salao','horarios'));
+    if(hSnap.exists())D.horarios=hSnap.data().dados||{};
+    const mSnap=await getDocs(collection(db,'manicures'));
+    D.manicures=mSnap.docs.map(d=>d.data()).filter(m=>m.status==='Ativa');
+    const sSnap=await getDocs(collection(db,'servicos'));
+    D.servicos=sSnap.docs.map(d=>d.data());
+    const aSnap=await getDocs(collection(db,'agendamentos'));
+    D.agendamentos=aSnap.docs.map(d=>d.data()).filter(a=>a.status!=='Cancelado');
+    preencherDias(); // agora D.horarios já está carregado
+    document.getElementById('tela0').style.display='none';
+    document.getElementById('tela1').style.display='block';
+  }catch(e){
+    document.getElementById('tela0').innerHTML='<div style="color:#e53935;padding:20px;text-align:center;"><div style="font-size:2rem;margin-bottom:10px;">❌</div><p>Erro ao carregar. Verifique sua internet.</p></div>';
+  }
+}
+function carregarSlots(){
+  const raw=document.getElementById('pDia').value;slotSel=null;
+  document.getElementById('btnAg').style.display='none';document.getElementById('cardSv').style.display='none';
+  const box=document.getElementById('slotsBox');
+  if(!raw){box.innerHTML='<p style="color:#bbb;font-size:0.85rem;margin-top:4px;">Selecione um dia.</p>';return;}
+  const parts=raw.split('|'), dia=parts[0], dataVal=parts[1]||'';
+  if(!D.horarios[dia]||!D.horarios[dia].length){box.innerHTML='<p style="color:#bbb;font-size:0.85rem;margin-top:4px;">Nenhum horário para este dia.</p>';return;}
+  const livres=D.horarios[dia].filter(h=>!D.agendamentos.some(a=>a.dia===dia&&a.hora===h));
+  if(!livres.length){box.innerHTML='<div style="background:#fff3e0;border:1.5px solid #FFD54F;border-radius:10px;padding:14px;text-align:center;margin-top:8px;"><strong style="color:#e65100;">😔 Sem horários disponíveis</strong><p style="font-size:0.82rem;color:#795548;margin-top:4px;">Tente outro dia!</p></div>';return;}
+  box.innerHTML='<div style="font-size:0.72rem;font-weight:700;color:#6B4C52;text-transform:uppercase;letter-spacing:0.8px;margin:8px 0 4px;">Toque para selecionar:</div><div class="grade">'+livres.map(h=>`<div class="slot" onclick="selSlot('${h}',this)">${h}</div>`).join('')+'</div>';
+}
+window.carregarSlots=carregarSlots;
+function selSlot(h,el){document.querySelectorAll('.slot').forEach(s=>s.classList.remove('sel'));el.classList.add('sel');slotSel=h;if(D.servicos.length){document.getElementById('cardSv').style.display='block';if(!document.getElementById('svLista').children.length)addSvRow();}document.getElementById('btnAg').style.display='flex';}
+window.selSlot=selSlot;
+function addSvRow(){
+  const idx='sv_'+uid();
+  const svOpts=D.servicos.map(s=>`<option value="${s._id}">${s.nome}${s.preco?' (R$ '+s.preco.toFixed(2).replace('.',',')+')':''}</option>`).join('');
+  const div=document.createElement('div');div.className='sv-row';div.id=idx;
+  div.innerHTML=`<button class="rm" onclick="document.getElementById('${idx}').remove()">✕</button>
+    <div class="fg" style="margin-bottom:8px;"><label>Serviço</label><select onchange="filtrarProf(this,'pf_${idx}')"><option value="">-- O que deseja? --</option>${svOpts}</select></div>
+    <div class="fg" style="margin-bottom:0;"><label>Com quem?</label><select id="pf_${idx}"><option value="">-- Escolha o serviço primeiro --</option></select></div>`;
+  document.getElementById('svLista').appendChild(div);
+}
+window.addSvRow=addSvRow;
+function filtrarProf(selSv,profId){const svId=selSv.value;const sv=D.servicos.find(s=>s._id==svId);const sel=document.getElementById(profId);if(!sel)return;if(!sv){sel.innerHTML='<option value="">-- Escolha o serviço primeiro --</option>';return;}const profs=D.manicures.filter(m=>(sv.profs||[]).includes(String(m._id)));sel.innerHTML=profs.length?'<option value="">-- Com quem? --</option>'+profs.map(m=>`<option value="${m._id}">${m.nome}</option>`).join(''):'<option value="">Nenhuma disponível</option>';}
+window.filtrarProf=filtrarProf;
+async function enviar(){
+  const nome=document.getElementById('pNome').value.trim();
+  const tel=document.getElementById('pTel').value;
+  const raw=document.getElementById('pDia').value;
+  const parts=raw?raw.split('|'):[];
+  const dia=parts[0]||'', dataAg=parts[1]||'';
+  if(!nome)return alert('Informe seu nome!');
+  if(!tel)return alert('Informe seu WhatsApp!');
+  if(!dia||!slotSel)return alert('Selecione o dia e horário!');
+  const linhas=[...document.querySelectorAll('#svLista .sv-row')];
+  const servs=[];
+  for(const l of linhas){
+    const sels=l.querySelectorAll('select');
+    if(sels[0]&&sels[0].value&&sels[1]&&sels[1].value){
+      const sv=D.servicos.find(s=>s._id==sels[0].value);const m=D.manicures.find(x=>x._id==sels[1].value);
+      servs.push({svId:sels[0].value,svNome:sv?sv.nome:'',profId:sels[1].value,profNome:m?m.nome:'',svPreco:sv?sv.preco||0:0,comissao:m?parseFloat(m.comissao)||0:0});
+    }
+  }
+  const btn=document.getElementById('btnAg');btn.disabled=true;btn.textContent='⏳ Enviando...';
+  agSolId='ag_'+uid();
+  try{
+    await setDoc(doc(db,'agendamentos',agSolId),{_id:agSolId,id:agSolId,dia,hora:slotSel,cliente:nome,telCliente:tel,servicos:servs,status:'Pendente',viaLink:true,criadoEm:new Date().toISOString(),data:dataAg,obs:'Via link público'});
+    const svTxt=servs.length?'<br><br>Serviços:<br>'+servs.map(s=>'• '+s.svNome+' com '+s.profNome).join('<br>'):'';
+    document.getElementById('msgPend').innerHTML=`<strong>${nome}</strong>!<br>📅 <strong>${dia}</strong> às <strong>${slotSel}</strong>${svTxt}`;
+    document.getElementById('tela1').style.display='none';
+    document.getElementById('tela2').style.display='block';
+    escutarStatus();
+  }catch(e){btn.disabled=false;btn.textContent='📅 Solicitar este Horário';alert('Erro ao enviar. Verifique sua internet!');}
+}
+window.enviar=enviar;
+function escutarStatus(){
+  if(unsubStatus)unsubStatus();
+  unsubStatus=onSnapshot(doc(db,'agendamentos',agSolId),snap=>{
+    if(!snap.exists())return;
+    const d=snap.data();
+    if(d.status==='Confirmado'){
+      document.getElementById('boxPend').style.display='none';
+      document.getElementById('boxOk').style.display='block';
+      const svTxt=d.servicos&&d.servicos.length?'<br>'+d.servicos.map(s=>'✂️ '+s.svNome+' com '+s.profNome).join('<br>'):'';
+      document.getElementById('msgOk').innerHTML=`<strong>${d.cliente}</strong>, confirmado! 💚<br>📅 <strong>${d.dia}</strong> às <strong>${d.hora}</strong>${svTxt}`;
+      if(unsubStatus){unsubStatus();unsubStatus=null;}
+    }else if(d.status==='Cancelado'){
+      document.getElementById('boxPend').style.display='none';
+      document.getElementById('boxCanc').style.display='block';
+      if(unsubStatus){unsubStatus();unsubStatus=null;}
+    }
+  });
+}
+function novoAg(){
+  if(unsubStatus){unsubStatus();unsubStatus=null;}
+  agSolId=null;slotSel=null;
+  ['tela1'].forEach(id=>{document.getElementById(id).style.display='block';});
+  document.getElementById('tela2').style.display='none';
+  document.getElementById('pNome').value='';document.getElementById('pTel').value='';document.getElementById('pDia').value='';
+  document.getElementById('slotsBox').innerHTML='<p style="color:#bbb;font-size:0.85rem;margin-top:4px;">Selecione um dia.</p>';
+  document.getElementById('svLista').innerHTML='';document.getElementById('cardSv').style.display='none';document.getElementById('btnAg').style.display='none';
+  document.getElementById('boxPend').style.display='block';document.getElementById('boxOk').style.display='none';document.getElementById('boxCanc').style.display='none';
+  const btn=document.getElementById('btnAg');if(btn){btn.disabled=false;btn.textContent='📅 Solicitar este Horário';}
+  carregar();
+}
+window.novoAg=novoAg;
+
+function preencherDias(){
+  const sel=document.getElementById('pDia');if(!sel)return;
+  const nomes=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const hoje=new Date();
+  sel.innerHTML='<option value="">-- Selecione o dia --</option>';
+  let adicionou=0;
+  for(let i=0;i<=30;i++){
+    const d=new Date(hoje);d.setDate(hoje.getDate()+i);
+    const nomeDia=nomes[d.getDay()];
+    // Só mostra dias que têm horários disponíveis
+    if(!D.horarios[nomeDia]||!D.horarios[nomeDia].length) continue;
+    // Verifica se tem pelo menos um horário livre nesse dia
+    const dd=String(d.getDate()).padStart(2,'0');
+    const mm=String(d.getMonth()+1).padStart(2,'0');
+    const dataStr=d.getFullYear()+'-'+mm+'-'+dd;
+    const opt=document.createElement('option');
+    opt.value=nomeDia+'|'+dataStr;
+    opt.textContent=nomeDia+' — '+dd+'/'+mm;
+    sel.appendChild(opt);
+    adicionou++;
+  }
+  if(!adicionou) sel.innerHTML='<option value="">Nenhum dia disponível</option>';
+}
+carregar(); // carrega Firebase e depois chama preencherDias
+</script>
+</body>
+</html>
